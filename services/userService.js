@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/UserModel');
 const tweetService = require('./tweetService');
 const authService = require('../authService');
+const { use } = require('../routes/UserRoute');
 
 module.exports.getProfileById = async(req, res) => {
     const queriedUserName = req.query.userName;
@@ -111,9 +112,10 @@ module.exports.registerNewUser = async(req, res) => {
 module.exports.getUserFeeds = async(req, res) => {
     console.log("GET /feeds , req: "+JSON.stringify(req.body));
 
-    const userName = req.sessionOwner;
+    const userName = req.userName;
     if(userName == null) {
         res.sendStatus(constants.NO_MATCH_FOUND_IN_DB);
+        return;
     }
 
     try {
@@ -121,9 +123,9 @@ module.exports.getUserFeeds = async(req, res) => {
         const tweets = await getAllTweetsByUserName(userName);
         if(tweets) feeds.push(...tweets);
         const connections = await getAllConnections(userName);
-        if(connections == null) res.sendStatus(constants.CONNECTIONS_NOT_FOUND);
-        else {
-            await connections.array.forEach(async(connectionUserName) => {
+        console.log("connections ", connections);
+        if(connections) {
+            await connections.forEach(async(connectionUserName) => {
                 try {
                     const tweets = await getAllTweetsByUserName(connectionUserName);
                     if(tweets) feeds.push(...tweets);
@@ -133,6 +135,7 @@ module.exports.getUserFeeds = async(req, res) => {
                 }
             });
         }
+        res.status(constants.SUCCESSFUL).json(feeds)
         
     }
     catch (err) {
@@ -310,20 +313,27 @@ async function getAllTweetsByUserName(userName) {
         const user = await User.findOne({ userName: userName });
         if(user == null) console.log(constants.USER_NOT_FOUND);
         const tweetIds = user.tweets;
+        console.log("user tweetsId: ", tweetIds);
         let tweets = [];
         if(tweetIds == null) {
             console.log("user.tweets is null");
         }
         else {
-            tweetIds.array.forEach(async(tweetId) => {
+            for(let i = 0; i < tweetIds.length; i++) {
                 try {
+                    const tweetId = tweetIds[i];
                     const tweet = await tweetService.findTweetById(tweetId);
-                    if(tweet) tweets.push(tweet);
+                    if(tweet) {
+                        console.log("tweet: ",tweet);
+                        tweets.push(tweet);
+                        console.log("tweets: ",tweets);
+                    }
                 } catch (err) {
                     console.log("error fetching tweet from it\'s id: "+err);
                 }
-            });
+            }
         }
+        console.log("tweets: ", tweets);
         return tweets;
     }
     catch(err) {
