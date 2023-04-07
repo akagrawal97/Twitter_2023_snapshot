@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const User = require('../models/UserModel');
 const tweetService = require('./tweetService');
 const authService = require('../authService');
-const { use } = require('../routes/UserRoute');
 
 module.exports.getProfileById = async(req, res) => {
     const queriedUserName = req.query.userName;
@@ -178,12 +177,21 @@ module.exports.changeName = async(req, res) => {
 module.exports.changePassword = async(req, res) => {
     try {
         const passwordVerified = await verifyPassword(req.userName, req.body.password);
-        const encryptedPassword = await bcrypt.hash(password, (Number)(process.env.SALT_ROUNDS));
+        console.log("passwordVerified: ", passwordVerified);
+        if(!passwordVerified) {
+            res.sendStatus(constants.WRONG_PASSWORD);
+            return;
+        }
+        const encryptedPassword = await bcrypt.hash(req.body.newpassword, (Number)(process.env.SALT_ROUNDS));
 
         if(passwordVerified) {
             try {
-                const user = await User.updateOne({ userName: req.userName }, {$set: { password: encryptedPassword }});
-                if(bcrypt.compare(user.password, encryptedPassword)) {
+                const updateResult = await User.updateOne({ userName: req.userName }, {$set: { password: encryptedPassword }});
+                const user = await User.findOne({userName: req.userName});
+                // console.log("user: ", user);
+                // console.log("req.body.newpassword: ", encryptedPassword);
+                // console.log("user.password: ", user.password);
+                if(bcrypt.compare(req.body.newpassword, user.password)) {
                     res.sendStatus(constants.USER_PASSWORD_CHANGE_SUCCESSFUL);
                 }
                 else
@@ -343,14 +351,17 @@ async function getAllTweetsByUserName(userName) {
 
 async function verifyPassword(userName, password) {
     try {
+        console.log("verifyPassword("+userName+", "+password+")");
         const user = await User.findOne({ userName: userName });
+        console.log("user: ", user);
         if(user == null) {
             console.log(constants.USER_NOT_FOUND)
             return false;
         }
         else {
             const encryptedPassword = await bcrypt.hash(password, (Number)(process.env.SALT_ROUNDS));
-            if(bcrypt.compare(encryptedPassword, user.password)) {
+            const verified = await bcrypt.compare(password, user.password);
+            if(verified) {
                 return true;
             }
             else {
