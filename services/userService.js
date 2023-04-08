@@ -187,11 +187,12 @@ module.exports.changePassword = async(req, res) => {
         if(passwordVerified) {
             try {
                 const updateResult = await User.updateOne({ userName: req.userName }, {$set: { password: encryptedPassword }});
+                console.log("updateResult: ", updateResult);
                 const user = await User.findOne({userName: req.userName});
                 // console.log("user: ", user);
                 // console.log("req.body.newpassword: ", encryptedPassword);
                 // console.log("user.password: ", user.password);
-                if(bcrypt.compare(req.body.newpassword, user.password)) {
+                if(updateResult.modifiedCount > 0 && bcrypt.compare(req.body.newpassword, user.password)) {
                     res.sendStatus(constants.USER_PASSWORD_CHANGE_SUCCESSFUL);
                 }
                 else
