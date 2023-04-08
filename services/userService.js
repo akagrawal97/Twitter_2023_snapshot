@@ -226,7 +226,7 @@ async function getAllTweetIdsByUserName(userName) {
 
 module.exports.getAllConnections = async (req, res) => {
     try {
-        const user = User.findOne({ userName: req.userName });
+        const user = await User.findOne({ userName: req.userName });
         if(user == null) res.sendStatus(constants.NO_MATCH_FOUND_IN_DB);
 
         else {
