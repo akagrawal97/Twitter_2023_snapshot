@@ -126,7 +126,9 @@ module.exports.getUserFeeds = async(req, res) => {
         const connections = await getAllConnections(userName);
         console.log("connections ", connections);
         if(connections) {
-            await connections.forEach(async(connectionUserName) => {
+            const connections_n = connections.length;
+            for(let i = 0; i < connections_n; i++) {
+                const connectionUserName = connections[i];
                 try {
                     const tweets = await getAllTweetsByUserName(connectionUserName);
                     if(tweets) feeds.push(...tweets);
@@ -134,7 +136,7 @@ module.exports.getUserFeeds = async(req, res) => {
                     console.log(constants.ERROR_FETCHING_TWEET, err);
                     res.sendStatus(constants.ERROR_FETCHING_DB);
                 }
-            });
+            }
         }
         res.status(constants.SUCCESSFUL).json(feeds)
         
