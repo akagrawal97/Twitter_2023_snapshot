@@ -323,7 +323,9 @@ module.exports.getAllTweetsByUserName = async(req, res) => {
 
 async function getAllTweetsByUserName(userName) {
     try {
+        console.log("getAllTweetsByUserName("+userName+")");
         const user = await User.findOne({ userName: userName });
+        console.log("user: "+JSON.stringify(user));
         if(user == null) {
             console.log(constants.USER_NOT_FOUND);
             return null;
