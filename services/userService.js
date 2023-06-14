@@ -337,16 +337,16 @@ async function getAllTweetsByUserName(userName) {
                     const tweetId = tweetIds[i];
                     const tweet = await tweetService.findTweetById(tweetId);
                     if(tweet) {
-                        console.log("tweet: ",tweet);
+                        // console.log("tweet: ",tweet);
                         tweets.push(tweet);
-                        console.log("tweets: ",tweets);
+                        // console.log("tweets: ",tweets);
                     }
                 } catch (err) {
                     console.log("error fetching tweet from it\'s id: "+err);
                 }
             }
         }
-        console.log("tweets: ", tweets);
+        // console.log("tweets: ", tweets);
         return tweets;
     }
     catch(err) {
