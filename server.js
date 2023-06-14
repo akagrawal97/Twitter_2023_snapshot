@@ -22,6 +22,10 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname+'/example.html');
 });
 
+app.get('/ping', (req, res) => {
+    res.status(200).send("Your ip address: "+req.ips);
+})
+
 app.get('/authenticateToken', (req, res) => {
     authService.authenticateToken(req, res);
 })
