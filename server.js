@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/ping', (req, res) => {
-    res.status(200).send("Your ip address: "+req.ips);
+    res.status(200).send("Your ip address: "+req.ip);
 })
 
 app.get('/authenticateToken', (req, res) => {
