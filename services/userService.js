@@ -82,10 +82,12 @@ module.exports.registerNewUser = async(req, res) => {
             }
             else {
                 const encryptedPassword = await bcrypt.hash(password, (Number)(process.env.SALT_ROUNDS));
+                const selfConnection = [userName];
                 const newUserModel = new User({
                     name: name,
                     userName: userName,
-                    password: encryptedPassword
+                    password: encryptedPassword,
+                    connections: selfConnection
                 });
 
                 try {
@@ -119,8 +121,8 @@ module.exports.getUserFeeds = async(req, res) => {
 
     try {
         let feeds = [];
-        const tweets = await getAllTweetsByUserName(userName);
-        if(tweets) feeds.push(...tweets);
+        // const tweets = await getAllTweetsByUserName(userName);
+        // if(tweets) feeds.push(...tweets);
         const connections = await getAllConnections(userName);
         console.log("connections ", connections);
         if(connections) {
