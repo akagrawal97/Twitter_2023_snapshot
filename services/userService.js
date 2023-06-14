@@ -346,7 +346,7 @@ async function getAllTweetsByUserName(userName) {
                 }
             }
         }
-        // console.log("tweets: ", tweets);
+        console.log("tweets: ", tweets);
         return tweets;
     }
     catch(err) {
