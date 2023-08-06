@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const constants = require('./constants');
 
 const privateKey = process.env.JWT_SECRET_KEY;
+console.log("JWT_SECRET_KEY: "+privateKey);
 
 module.exports.generateToken = function generateToken(input) {
     try {
